@@ -25,6 +25,7 @@ struct ContentView: View {
             Button("Click me") {
                 // some action
             }
+            .foregroundColor(Color.red)
             
             Spacer()
         }
