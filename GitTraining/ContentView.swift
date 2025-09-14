@@ -11,6 +11,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Image(systemName: "heart.fill")
+                .foregroundColor(Color.red)
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Hello, world!")
