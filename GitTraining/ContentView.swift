@@ -21,6 +21,11 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Hello, world!")
+            
+            Button("Click me") {
+                // some action
+            }
+            
             Spacer()
         }
         .padding()
