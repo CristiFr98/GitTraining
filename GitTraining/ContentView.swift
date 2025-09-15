@@ -22,6 +22,7 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("Hello, Lume")
                 .foregroundColor(Color.pink)
+                .fontWeight(.semibold)
             
             Button("Click me") {
                 // some action
