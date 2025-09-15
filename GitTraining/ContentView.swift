@@ -20,7 +20,7 @@ struct ContentView: View {
                 .foregroundColor(Color.red)
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("Hello, Lume")
             
             Button("Click me") {
                 // some action
