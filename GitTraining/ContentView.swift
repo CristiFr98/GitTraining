@@ -21,7 +21,7 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Hello, Lume")
-                .foregroundColor(Color.pink)
+                .foregroundColor(Color.green)
                 .fontWeight(.semibold)
             
             Button("Click me") {
