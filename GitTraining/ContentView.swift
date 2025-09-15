@@ -14,7 +14,7 @@ struct ContentView: View {
             Text("Title")
                 .font(.title)
                 .fontWeight(.bold)
-                .foregroundColor(Color.green)
+                .foregroundColor(Color.blue)
             Spacer()
             Image(systemName: "heart.fill")
                 .foregroundColor(Color.red)
