@@ -13,45 +13,36 @@ struct ContentView: View {
 //    var tuples = ()
     
     var body: some View {
-
-//        RoundedRectangle(cornerRadius: 20)
-//            .frame(width: 160, height: 160)
-//            .foregroundColor(Color.blue.opacity(0.6))
         
-//        AdaptiveList(maxFontSize: 32, minItems: 5, fontSizeMultiplier: 1) {
-//                ForEach(items, id: \.self) { item in
-//                    Text(item)
-////                        .font(.system(size: 10))
-//                }
-//                Text("Title")
-////                    .font(.system(size: 10))
-//            }
-////            .padding()
-//            .frame(width: 160, height: 160)
-//            .background(Color.blue.opacity(0.6))
-        
-        NewListType(maxFontSize: 32) {
-            ForEach(items, id: \.self) { item in
-                Text(item)
-//                        .font(.system(size: 10))
-            }
-            Text("Title")
-//                    .font(.system(size: 10))
-        }
-//            .padding()
-        .frame(width: 160, height:160)
-//        .frame(height: .infinity)
-        .background(Color.red)
+        ZStack {
+            Color.orange.opacity(0.2).ignoresSafeArea()
             
-        
+            NewListType() {
+                
+                ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                    Text(item).fixedSize()
+                    //                    .font(.system(size: 10))
+                }
+                //            Text("Title")
+                //                    .font(.system(size: 10))
+            }
+            .frame(width: 160, height:160)
+            //        .frame(height: .infinity)
+            .background(Color.red)
+            
+        }
+        .overlay(alignment: .topLeading) {
+            Circle()
+                .position(x: 121, y: 357)
+                .frame(width: 20, height: 20)
+                .foregroundColor(Color.green)
+        }
+        .ignoresSafeArea()
     }
 }
 
 
 struct NewListType: Layout {
-    
-    var maxFontSize: CGFloat
-//    var fontSizeMultiplier: CGFloat = 1
     
     func sizeThatFits(
         proposal: ProposedViewSize,
@@ -59,15 +50,6 @@ struct NewListType: Layout {
         cache: inout ()
     ) -> CGSize {
         CGSize(width: proposal.width ?? 0, height: proposal.height ?? 0)
-//        guard !subviews.isEmpty else { return .zero }
-//        
-//        let maxSize = maxSize(subviews: subviews)
-//        let spacing = spacing(subviews: subviews)
-//        let totalSpacing = spacing.reduce(0) { $0 + $1 }
-//        
-//        return CGSize(
-//            width: maxSize.width,
-//            height: maxSize.height * CGFloat(subviews.count) + totalSpacing)
     }
     
     func placeSubviews(
@@ -77,54 +59,38 @@ struct NewListType: Layout {
         cache: inout ()
     ) {
         guard !subviews.isEmpty else { return }
+        print("=== Layout Pass ===")
+        print("Bounds: \(bounds)")
+        print("Proposal: \(proposal)")
+        print("Subviews count: \(subviews.count)")
         
-        let maxSize = maxSize(subviews: subviews)
         let spacing = spacing(subviews: subviews)
-        let totalSpacing = spacing.reduce(0) { $0 + $1 }
+//        let totalSpacing = spacing.reduce(0) { $0 + $1 }
         
-//        var fontSize = maxFontSize * fontSizeMultiplier
-        var newMultiplier = CGFloat(1)
         
-        func finalHeight(for multiplier: CGFloat) -> CGFloat {
-            CGFloat(subviews.count) * maxFontSize * multiplier + totalSpacing
-//            CGFloat(subviews.count) * multiplier + totalSpacing
-        }
         
-        while finalHeight(for: newMultiplier) > bounds.height && newMultiplier > 0.1 {
-            newMultiplier -= 0.1
-        }
+        let measureProposal = ProposedViewSize(
+            width: bounds.width,
+            height: nil)
         
-        let finalItemSize: CGFloat = maxFontSize * newMultiplier
-        
-//        let placementProposal = ProposedViewSize(
-//            width: maxSize.width,
-//            height: maxSize.height)
-        
-//        var nextY = bounds.minY + maxSize.height / 2
-        
-        let placementProposal = ProposedViewSize(
-            width: maxSize.width,
-            height: finalItemSize)
-        
-        var nextY = bounds.minY + finalItemSize / 2
+        var currentY = bounds.minY
+        print("\(currentY), bounds: \(bounds)")
+//        var subviewsPlaced: Int = 0
         
         for index in subviews.indices {
-            subviews[index].place(
-                at: CGPoint(x: bounds.minX, y: nextY),
-                anchor: .leading,
-                proposal: placementProposal)
-            nextY += finalItemSize + spacing[index]
+            let subviewSize = subviews[index].sizeThatFits(measureProposal)
+            if currentY + subviewSize.height + spacing[index] < bounds.maxY {
+                subviews[index].place(
+                    at: CGPoint(x: bounds.minX, y: currentY),
+//                    anchor: .topLeading,
+                    proposal: ProposedViewSize(width: bounds.width, height: subviewSize.height))
+                currentY += subviewSize.height + spacing[index]
+                print("\(currentY), index: \(index)")
+            } else {
+                subviews[index].place(at: CGPoint(x: -10_000, y: -10_000), proposal: .unspecified)
+                print("Else: \(index), Y: \(currentY)")
+            }
         }
-    }
-    
-    private func maxSize(subviews: Subviews) -> CGSize {
-        let subviewSizes = subviews.map { $0.sizeThatFits(.unspecified) }
-        let maxSize: CGSize = subviewSizes.reduce(.zero) { currentMax, subviewSizes in
-            CGSize(
-                width: max(currentMax.width, subviewSizes.width),
-                height: max(currentMax.height, subviewSizes.height))
-        }
-        return maxSize
     }
     
     private func spacing(subviews: Subviews) -> [CGFloat] {
@@ -137,57 +103,6 @@ struct NewListType: Layout {
     }
     
     
-}
-
-
-
-
-
-struct AdaptiveList: Layout {
-    
-    var maxFontSize: CGFloat
-    var minItems: Int
-    var fontSizeMultiplier: CGFloat
-    
-    func sizeThatFits(
-        proposal: ProposedViewSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) -> CGSize {
-        CGSize(width: proposal.width ?? 0, height: proposal.height ?? 0)
-    }
-    
-    func placeSubviews(
-        in bounds: CGRect,
-        proposal: ProposedViewSize,
-        subviews: Subviews,
-        cache: inout ()
-    ) {
-        guard !subviews.isEmpty else { return }
-        let availableHeight = bounds.height
-        let itemCount = subviews.count
-        
-        var fontSize = maxFontSize * fontSizeMultiplier
-        
-        func totalHeight(for size: CGFloat) -> CGFloat {
-            CGFloat(itemCount) * size * 1
-        }
-        
-        while totalHeight(for: fontSize) > availableHeight && fontSize > 1 {
-            fontSize -= 1
-        }
-        
-        var y = bounds.minY
-        for subview in subviews {
-            let height = fontSize * 1
-            subview.place(
-                at: CGPoint(x: bounds.minX, y: y),
-                proposal: ProposedViewSize(width: bounds.width, height: height)
-            )
-            y += height
-        }
-        
-    }
 }
 
 
